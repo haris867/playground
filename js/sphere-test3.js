@@ -21,14 +21,20 @@ const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
 // Image on Segment of Sphere
+const originalPhiLength = Math.PI * 0.5; // Original horizontal span (90 degrees)
+const originalThetaLength = Math.PI * 0.5; // Original vertical span (90 degrees)
+
+const newPhiLength = originalPhiLength * 0.5; // New horizontal span (45 degrees)
+const newThetaLength = originalThetaLength * 0.5; // New vertical span (45 degrees)
+
 const segmentGeometry = new THREE.SphereGeometry(
-  3,
-  64,
-  64,
-  0,
-  Math.PI * 2,
-  0,
-  Math.PI / 4
+  3, // radius
+  64, // widthSegments
+  64, // heightSegments
+  Math.PI * 0.25 + (originalPhiLength - newPhiLength) * 0.5, // Adjusted phiStart
+  newPhiLength, // New phiLength
+  Math.PI * 0.25 + (originalThetaLength - newThetaLength) * 0.5, // Adjusted thetaStart
+  newThetaLength // New thetaLength
 );
 const segmentMaterial = new THREE.MeshBasicMaterial({
   map: myTexture,
@@ -50,8 +56,8 @@ const sizes = {
 };
 
 // Light
-const light = new THREE.PointLight(0xffffff, 90, 100);
-light.position.set(10, 10, 1);
+const light = new THREE.PointLight(0xffffff, 200, 100);
+light.position.set(10, 8, 15);
 scene.add(light);
 
 // Camera
@@ -71,8 +77,13 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.enableZoom = false;
-controls.autoRotate = true;
+controls.autoRotate = false;
 controls.autoRotateSpeed = 5;
+
+// Hemisphere light
+
+const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1); // Sky color, ground color, intensity
+scene.add(hemisphereLight);
 
 // Resize
 window.addEventListener("resize", () => {
@@ -84,6 +95,34 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   // Update renderer
   renderer.setSize(sizes.width, sizes.height);
+});
+
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+window.addEventListener("mousedown", (event) => {
+  // Normalize mouse position between -1 and 1 for both axes
+  mouse.x = (event.clientX / sizes.width) * 2 - 1;
+  mouse.y = -(event.clientY / sizes.height) * 2 + 1;
+
+  // Check for intersections
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObject(segmentMesh);
+
+  if (intersects.length > 0) {
+    // The segmentMesh was clicked
+
+    const originalPosition = segmentMesh.position.clone();
+
+    segmentMesh.position.z = 1;
+
+    gsap.to(segmentMesh.position, {
+      delay: 1,
+      z: originalPosition.z,
+      ease: "power2.out",
+      duration: 0.5, // Duration for the tween back to original position, you can adjust
+    });
+  }
 });
 
 const loop = () => {
