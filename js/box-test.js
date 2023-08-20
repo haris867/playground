@@ -1,5 +1,5 @@
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import * as THREE from "/node_modules/three/build/three.module.js";
+import { OrbitControls } from "/node_modules/three/examples/jsm/controls/OrbitControls.js";
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -11,7 +11,8 @@ const camera = new THREE.PerspectiveCamera(
 
 const myTexture = new THREE.TextureLoader().load("/images/head5.png");
 
-const renderer = new THREE.WebGLRenderer();
+const canvas = document.querySelector(".webgl");
+const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 

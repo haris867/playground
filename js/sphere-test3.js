@@ -43,11 +43,22 @@ const segmentMaterial = new THREE.MeshBasicMaterial({
 });
 const segmentMesh = new THREE.Mesh(segmentGeometry, segmentMaterial);
 
+const anotherGeometry = new THREE.SphereGeometry(3, 64, 64);
+const anotherMaterial = new THREE.MeshStandardMaterial({
+  color: "#ff5733",
+  roughness: 0.4,
+  metalness: 0.6,
+});
+
+const anotherMesh = new THREE.Mesh(anotherGeometry, anotherMaterial);
+anotherMesh.position.set(10, 0, 0); // setting the position so it doesn't overlap with the existing sphere
+
 // Create a group to hold both the main sphere and the image segment
 const group = new THREE.Group();
 group.add(mesh);
 group.add(segmentMesh);
 scene.add(group);
+group.add(anotherMesh);
 
 // Sizes
 const sizes = {
@@ -61,7 +72,7 @@ light.position.set(10, 8, 15);
 scene.add(light);
 
 // Camera
-const camera = new THREE.PerspectiveCamera(45, sizes.width / sizes.height);
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
 camera.position.z = 20;
 scene.add(camera);
 
@@ -83,7 +94,7 @@ controls.autoRotateSpeed = 5;
 // Hemisphere light
 
 const hemisphereLight = new THREE.HemisphereLight(0xffffbb, 0x080820, 1); // Sky color, ground color, intensity
-scene.add(hemisphereLight);
+// scene.add(hemisphereLight);
 
 // Resize
 window.addEventListener("resize", () => {
@@ -114,7 +125,7 @@ window.addEventListener("mousedown", (event) => {
 
     const originalPosition = segmentMesh.position.clone();
 
-    segmentMesh.position.z = 1;
+    segmentMesh.position.z = 2;
 
     gsap.to(segmentMesh.position, {
       delay: 1,
@@ -124,6 +135,26 @@ window.addEventListener("mousedown", (event) => {
     });
   }
 });
+
+function addStars() {
+  const geometry = new THREE.SphereGeometry(0.1, 64, 64);
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.2,
+    metalness: 0.2,
+  });
+
+  const star = new THREE.Mesh(geometry, material);
+
+  const [x, y, z] = Array(3)
+    .fill()
+    .map(() => THREE.MathUtils.randFloatSpread(100));
+
+  star.position.set(x, y, z);
+  scene.add(star);
+}
+
+Array(200).fill().forEach(addStars);
 
 const loop = () => {
   controls.update();

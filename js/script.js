@@ -9,7 +9,8 @@ const camera = new THREE.PerspectiveCamera(
   1000
 );
 
-const renderer = new THREE.WebGLRenderer();
+const canvas = document.querySelector(".webgl");
+const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -20,12 +21,12 @@ const material = new THREE.MeshStandardMaterial({
   metalness: 0.2,
 });
 const cube = new THREE.Mesh(geometry, material);
-// cube.position.set(1, 0, 0);
+cube.position.set(1, 0, 0);
 scene.add(cube);
 
 // Light
 
-const light = new THREE.PointLight(0xffffff, 1000, 0, 2.3);
+const light = new THREE.AmbientLight(0xffffff, 1000, 0, 2.3);
 light.position.set(0, 0, 15);
 scene.add(light);
 
